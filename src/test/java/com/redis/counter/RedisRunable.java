@@ -5,7 +5,7 @@ public class RedisRunable implements Runnable{
 	private String key = "test";
 	
 	public void run() {
-		RedisCounter redisCounter = RedisCounter.getInstance();
+		RedisTool redisCounter = RedisTool.getInstance();
 		
 		redisCounter.increaseTimes(key);
 		int times = redisCounter.getTimes(key);
