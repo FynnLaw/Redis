@@ -134,4 +134,22 @@ public class RedisTool {
 		return queue.offer(key + "-" + value);
 	}
 	
+	public synchronized String getValue(String key){
+		Jedis jedis = redis.getJedis();
+		String result = jedis.get(key);
+		
+		//一定要回收jedis资源,不然很快就用完,出现异常
+		redis.returnJedis(jedis);
+		return result;
+	}
+	
+	public synchronized Long addList(String key,String value){
+		Jedis jedis = redis.getJedis();
+		Long result = jedis.lpush(key, value);
+		
+		//一定要回收jedis资源,不然很快就用完,出现异常
+		redis.returnJedis(jedis);
+		return result;
+	}
+	
 }
