@@ -152,4 +152,13 @@ public class RedisTool {
 		return result;
 	}
 	
+	public boolean exsitKey(String key){
+		Jedis jedis = redis.getJedis();
+		Boolean result = jedis.exists(key);
+		
+		//一定要回收jedis资源,不然很快就用完,出现异常
+		redis.returnJedis(jedis);
+		return result;
+	}
+	
 }
