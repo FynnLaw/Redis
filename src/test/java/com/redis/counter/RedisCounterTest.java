@@ -13,7 +13,7 @@ public class RedisCounterTest {
 			j++;
 		}
 		
-		Thread.sleep(60000);
+		Thread.sleep(6000);
 		System.out.println("模拟" + j + "个用户同时访问！");
 	}
 }

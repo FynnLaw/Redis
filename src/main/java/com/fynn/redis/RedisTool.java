@@ -1,9 +1,15 @@
-package com.redis.counter;
+package com.fynn.redis;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.fynn.tools.util.Utils;
+import com.fynn.util.Mode;
 
 import redis.clients.jedis.Jedis;
 
@@ -11,17 +17,32 @@ public class RedisTool {
 	private static RedisTool instance;
 	private static BlockingQueue<String> queue = new ArrayBlockingQueue<String>(10000);
 	private static Redis redis;
+	private static Properties prop;
+	static{
+		prop = new Properties();
+		InputStream in = RedisForLocal.class.getResourceAsStream("/redis.properties");
+		try {
+			prop.load(in);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * author:fynn.liu
-	 * time:2016-9-26下午4:34:09
+	 * time:2016-9-26下午4:34:09 
 	 * description:得到RedisCounter实例,并启动消息读取线程
 	 */
 	public static RedisTool getInstance() {
 		synchronized (RedisTool.class) {
 			if (instance == null) {
 				instance = new RedisTool();
-				redis = new Redis();
+				
+				if(Mode.LOCAL.equals(prop.getProperty("mode"))){
+					redis = new RedisForLocal();
+				}else if(Mode.DUAPP.equals(prop.getProperty("mode"))){
+					redis = new RedisForDuApp();
+				}
 				
 				//启动读取queue消息线程
 				ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -56,8 +77,9 @@ public class RedisTool {
 					}
 				});
 			}
+			
+			return instance;
 		}
-		return instance;
 	}
 	
 	/**
@@ -66,7 +88,7 @@ public class RedisTool {
 	 * time:2016-9-26下午6:11:42
 	 * description:销毁redis资源
 	 */
-	public static void destory(){
+	public void destory(){
 		redis.destroyJedisPool();
 	}
 	
@@ -82,7 +104,7 @@ public class RedisTool {
 		
 		//一定要回收jedis资源,不然很快就用完,出现异常
 		redis.returnJedis(jedis);
-		return Redis.stringToInt(result);
+		return Utils.stringToInt(result);
 	}
 
 	/**

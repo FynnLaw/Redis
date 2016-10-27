@@ -1,5 +1,7 @@
 package com.redis.counter;
 
+import com.fynn.redis.RedisTool;
+
 public class RedisRunable implements Runnable{
 	public static int counter = 1;
 	private String key = "test";
